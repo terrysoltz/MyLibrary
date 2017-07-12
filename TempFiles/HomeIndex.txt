@@ -1,0 +1,17 @@
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h3>Welcome to the Library</h3>
+
+<div class="container">
+    <p>
+        This application is a demonstration of code first development in Entity Framework. It simulates
+        the simplified operation of a multi-branch municipal library system. The user can
+        @Html.ActionLink("view books", "Index", "Copies", null, null) that ae available at the various
+        branches, and check them out if their name is already in the system. Additionally, the user can
+        @Html.ActionLink("view books", "Index", "Loans", null, null) that are currently on loan and check
+        them back in. The number of copies of that book that are available is updated accordingly.
+    </p>
+</div>

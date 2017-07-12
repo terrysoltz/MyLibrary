@@ -1,0 +1,129 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Linq;
+using System.Net;
+using System.Web;
+using System.Web.Mvc;
+using CodeFirstLibrary.DAL;
+using CodeFirstLibrary.Models;
+
+namespace CodeFirstLibrary.Controllers
+{
+    public class LoansController : Controller
+    {
+        private LibraryContext db = new LibraryContext();
+
+        // GET: Loans
+        public ActionResult Index()
+        {
+            var loans = db.Loans.Include(l => l.Book).Include(l => l.Borrower).Include(l => l.Branch).OrderBy(l => l.DueDate);
+            return View(loans.ToList());
+        }
+
+        // GET: Loans/Details/5
+        public ActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Loan loan = db.Loans.Find(id);
+            if (loan == null)
+            {
+                return HttpNotFound();
+            }
+            return View(loan);
+        }
+
+        // GET: Loans/Create
+        public ActionResult Create(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Copies copies = db.Copies.Find(id);
+            if (copies == null)
+            {
+                return HttpNotFound();
+            }
+            
+            var bookLoans = new LoanView();
+            bookLoans.Copies = copies;
+            bookLoans.Loan = new Loan();
+            bookLoans.Loan.DateOut = System.DateTime.Now;
+            bookLoans.Loan.DueDate = bookLoans.Loan.DateOut.AddMonths(1);
+            ViewBag.BorrowerID = new SelectList(db.Borrowers, "BorrowerID", "Name");
+            return View(bookLoans);
+        }
+
+        // POST: Loans/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create([Bind(Prefix = "Loan", Include = "BookID,BranchID,BorrowerID,DateOut,DueDate")] Loan loan,
+            [Bind(Prefix = "Copies", Include = "CopiesID,BookID,BranchID,NoCopies")] Copies copies)
+        {
+            if (ModelState.IsValid)
+            {
+                var thisCopy = db.Copies.Find(copies.CopiesID);
+                if (thisCopy.NoCopies < 1)
+                {
+                    return RedirectToAction("Index", "Copies");
+                }
+                else
+                {
+                    thisCopy.NoCopies -= 1;
+                }
+                db.Loans.Add(loan);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            var loanView = new LoanView();
+            loanView.Copies = copies;
+            loanView.Loan = loan;
+            ViewBag.BorrowerID = new SelectList(db.Borrowers, "BorrowerID", "Name", loanView.Loan.BorrowerID);
+            return View(loanView);
+        }
+
+        // GET: Loans/Delete/5
+        public ActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Loan loan = db.Loans.Find(id);
+            if (loan == null)
+            {
+                return HttpNotFound();
+            }
+            return View(loan);
+        }
+
+        // POST: Loans/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            Loan loan = db.Loans.Find(id);
+            var thisCopy = db.Copies.Where(c => c.BookID == loan.BookID && c.BranchID == loan.BranchID).FirstOrDefault();
+            thisCopy.NoCopies += 1;
+            db.Loans.Remove(loan);
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+}

@@ -1,0 +1,64 @@
+@model PagedList.IPagedList<CodeFirstLibrary.Models.Copies>
+@using PagedList.Mvc;
+@using CodeFirstLibrary.Models;
+
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Available Books";
+}
+
+<h3>Available Books</h3>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().Book.Title)
+        </th>
+        <th>
+            Author
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().Branch.BranchName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().NoCopies)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model.Select(b => b.Book.Title).Distinct()) {
+    <tr>
+        <td class="book-title">
+            @Html.DisplayFor(modelItem => item)
+        </td>
+        <td class="book-title">
+            @(((IEnumerable<BookAuthor>)ViewBag.Authors).Where(t => t.Book.Title == item).FirstOrDefault().Name)
+        </td>
+    </tr>
+    foreach (var value in Model.Where(b => b.Book.Title == item))
+    {
+    <tr>
+        <td></td>
+        <td></td>
+        <td>
+            @Html.DisplayFor(modelItem => value.Branch.BranchName)
+        </td>
+        <td align="center">
+            @Html.DisplayFor(modelItem => value.NoCopies)
+        </td>
+        <td>
+            @if (value.NoCopies > 0) {
+            @Html.ActionLink("Check Out", "Create", "Loans", new { id = value.CopiesID }, new { })
+            }
+        </td>
+    </tr>
+        }
+    }
+
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page }))

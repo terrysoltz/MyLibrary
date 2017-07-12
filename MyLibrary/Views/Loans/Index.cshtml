@@ -1,0 +1,55 @@
+﻿@model IList<MyLibrary.Models.Loan>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@if (Model.Count() == 0)
+{
+    <h2>No Books Currently on Loan</h2>
+}
+else
+{
+    <h3>Books Currently on Loan to @Model.FirstOrDefault().Borrower.UserName</h3>
+
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().Book.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().Branch.BranchName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().DateOut)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().DueDate)
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Book.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Branch.BranchName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateOut)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DueDate)
+                </td>
+                <td>
+                    @Html.ActionLink("Return", "Delete", new { id = item.LoanID })
+                </td>
+            </tr>
+        }
+
+    </table>
+
+}

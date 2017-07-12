@@ -1,0 +1,79 @@
+﻿@model MyLibrary.Models.LoanViewModel
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h3>Check Out</h3>
+
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Details</h4>
+
+        @Html.HiddenFor(model => model.Copies.CopiesID)
+        @Html.HiddenFor(model => model.Copies.BookID)
+        @Html.HiddenFor(model => model.Copies.BranchID)
+        @Html.HiddenFor(model => model.Copies.NoCopies)
+
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Copies.Book.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10 form-control-static">
+                @Html.DisplayFor(model => model.Copies.Book.Title)
+                @Html.HiddenFor(model => model.Loan.BookID, new { Value = Model.Copies.BookID })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Copies.Branch.BranchName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10 form-control-static">
+                @Html.DisplayFor(model => model.Copies.Branch.BranchName)
+                @Html.HiddenFor(model => model.Loan.BranchID, new { Value = Model.Copies.BranchID })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Loan.Borrower.UserName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10 form-control-static">
+                @Html.DisplayFor(model => model.Loan.Borrower.UserName)
+                @Html.HiddenFor(model => model.Loan.Borrower)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Loan.DateOut, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10 form-control-static">
+                @Html.DisplayFor(model => model.Loan.DateOut)
+                @Html.HiddenFor(model => model.Loan.DateOut)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Loan.DueDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10 form-control-static">
+                @Html.DisplayFor(model => model.Loan.DueDate)
+                @Html.HiddenFor(model => model.Loan.DueDate)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Check Out" class="btn btn-default" />|
+                @Html.ActionLink("View Available Books", "Index", "Copies", null, null)
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
